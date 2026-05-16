@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# pre-commit 钩子
+# 在 git commit 之前自动执行
+#
+# 验证方式：
+#   1. 修改一个文件
+#   2. git add .
+#   3. git commit -m "test"
+#   4. 观察输出中是否出现下面的提示
+#
+
+echo ""
+echo "=============================="
+echo "  pre-commit 钩子已触发！"
+echo "=============================="
+echo ""
+
+# 演示1：检查是否有调试代码
+echo "[检查1] 扫描调试代码..."
+if grep -rn "console\.log\|debugger\|TODO\|FIXME" --include="*.js" . 2>/dev/null; then
+    echo ""
+    echo "⚠️  发现调试代码或待办标记（上面列出的内容）"
+    echo "   注意：这只是演示，不会阻止提交"
+    echo "   实际项目中可以 exit 1 来阻止提交"
+fi
+
+echo ""
+echo "[检查2] 检查文件大小..."
+BIG_FILES=$(find . -type f -size +100k -not -path "./.git/*" 2>/dev/null)
+if [ -n "$BIG_FILES" ]; then
+    echo "⚠️  发现大文件："
+    echo "$BIG_FILES"
+fi
+
+echo ""
+echo "✅ pre-commit 检查完成"
+echo "=============================="
+echo ""
+
+# 返回 0 表示允许提交
+# 返回 1 会中止提交（试试把下面的 0 改成 1）
+exit 0

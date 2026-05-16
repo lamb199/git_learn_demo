@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# post-checkout 钩子
+# 在 git checkout / git switch 完成后执行
+# 用于演示 HEAD 指针的变化
+#
+# 参数：
+#   $1 = 前一个 HEAD 的提交哈希
+#   $2 = 新的 HEAD 的提交哈希
+#   $3 = 标志（1=分支切换，0=文件检出）
+#
+
+PREV_HEAD="$1"
+NEW_HEAD="$2"
+BRANCH_FLAG="$3"
+
+echo ""
+echo "=============================="
+echo "  post-checkout 钩子已触发！"
+echo "=============================="
+echo ""
+echo "📍 HEAD 变化："
+echo "   前一个提交: $PREV_HEAD"
+echo "   当前提交:   $NEW_HEAD"
+echo ""
+
+if [ "$BRANCH_FLAG" = "1" ]; then
+    CURRENT_BRANCH=$(git branch --show-current 2>/dev/null)
+    if [ -z "$CURRENT_BRANCH" ]; then
+        echo "🌿 当前状态: 分离 HEAD（不在任何分支上）"
+        echo "   HEAD 直接指向提交: $NEW_HEAD"
+    else
+        echo "🌿 当前分支: $CURRENT_BRANCH"
+        echo "   HEAD → refs/heads/$CURRENT_BRANCH → $NEW_HEAD"
+    fi
+else
+    echo "📄 文件检出（非分支切换）"
+fi
+
+echo ""
+echo "=============================="
+echo ""
+
+exit 0

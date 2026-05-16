@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# pre-push 钩子
+# 在 git push 之前执行
+# 演示：防止直接推送到 refs/heads/*（Gerrit 场景）
+#
+# 这个钩子会读取标准输入，每行格式为：
+#   <local ref> <local sha> <remote ref> <remote sha>
+#
+
+echo ""
+echo "=============================="
+echo "  pre-push 钩子已触发！"
+echo "=============================="
+echo ""
+
+PROTECTED_BRANCHES="master main develop"
+
+while read local_ref local_sha remote_ref remote_sha; do
+    echo "📡 推送信息："
+    echo "   本地引用: $local_ref"
+    echo "   远程引用: $remote_ref"
+    echo ""
+
+    # 检查是否推送到 refs/heads/*（直接推送分支）
+    if echo "$remote_ref" | grep -qE "^refs/heads/"; then
+        branch_name=$(echo "$remote_ref" | sed 's|refs/heads/||')
+
+        if echo "$PROTECTED_BRANCHES" | grep -qw "$branch_name"; then
+            echo "❌ 禁止直接推送到受保护分支: $branch_name"
+            echo "✅ 请使用 Gerrit 推送: git push origin HEAD:refs/for/$branch_name"
+            echo ""
+            echo "   注意：这只是演示，实际未阻止推送"
+            echo "   实际项目中删除下面的注释即可生效"
+            echo ""
+            # 取消下面这行的注释来真正阻止推送：
+            # exit 1
+        else
+            echo "✅ 非受保护分支 $branch_name，允许推送"
+        fi
+    else
+        echo "✅ 推送到 $remote_ref（非直接分支推送）"
+    fi
+done
+
+echo ""
+echo "=============================="
+echo "  pre-push 检查完成"
+echo "=============================="
+echo ""
+
+exit 0

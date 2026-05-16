@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# commit-msg 钩子
+# 在提交信息写入后、提交完成前执行
+# 用于验证提交信息格式
+#
+# 参数：$1 是包含提交信息的临时文件路径
+#
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+echo ""
+echo "=============================="
+echo "  commit-msg 钩子已触发！"
+echo "=============================="
+echo ""
+echo "📝 你的提交信息是："
+echo "   $COMMIT_MSG"
+echo ""
+
+# 检查提交信息长度（第一行不超过 50 个字符）
+FIRST_LINE=$(echo "$COMMIT_MSG" | head -1)
+if [ ${#FIRST_LINE} -gt 50 ]; then
+    echo "⚠️  提交信息第一行超过 50 个字符（当前 ${#FIRST_LINE} 个）"
+    echo "   注意：这只是演示警告，不会阻止提交"
+    echo "   实际项目中可以 exit 1 来阻止提交"
+fi
+
+# 检查是否有空提交信息
+if [ -z "$COMMIT_MSG" ]; then
+    echo "❌ 提交信息不能为空！"
+    exit 1
+fi
+
+echo "✅ commit-msg 检查完成"
+echo "=============================="
+echo ""
+
+exit 0
