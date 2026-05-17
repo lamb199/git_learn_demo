@@ -11,5 +11,4 @@ function subtract(a, b) {
 module.exports = { add, subtract };
 
 // 我的代码
-console.log(add(1, 2));
-console.log(subtract(1, 2));
+console.log(add(1, 3));
